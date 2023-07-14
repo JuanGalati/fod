@@ -82,7 +82,6 @@ Begin
   WriteLn('Empleados: ');
   WriteLn;
 
-
   While (Not EOF(archivo)) Do
     Begin
       Read(archivo, empleado);
@@ -124,12 +123,14 @@ Procedure AbrirArchivoDeEmpleados();
 
 Var 
   opcion: Char;
+  salir: Boolean;
   archivo: t_Archivo;
 
 Begin
+  salir := false;
   ElegirArchivo(archivo);
 
-  While (true) Do
+  While (Not salir) Do
     Begin
       clrScr;
 
@@ -147,7 +148,7 @@ Begin
         '1': BuscarEmpleado(archivo);
         '2': ListarEmpleados(archivo);
         '3': ListarMayoresDe70(archivo);
-        '0': Break;
+        '0': salir := true;
         Else
           Begin
             WriteLn;
@@ -223,12 +224,12 @@ End;
 
 Var 
   opcion: Char;
-  exit: Boolean;
+  salir: Boolean;
 Begin
   clrScr;
-  exit := false;
+  salir := false;
 
-  While (Not exit) Do
+  While (Not salir) Do
     Begin
       clrScr;
       WriteLn('Seleccione una opción:');
@@ -243,7 +244,7 @@ Begin
       Case opcion Of 
         '1': CrearArchivoDeEmpleados();
         '2': AbrirArchivoDeEmpleados();
-        '0': exit := true;
+        '0': salir := true;
         Else
           Begin
             WriteLn;
