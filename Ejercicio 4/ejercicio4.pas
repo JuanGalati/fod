@@ -119,6 +119,22 @@ Begin
   Close(Archivo);
 End;
 
+Procedure AgregarEmpleados(Var archivo: t_Archivo);
+Begin
+End;
+
+Procedure ModificarEdad(Var archivo: t_Archivo);
+Begin
+End;
+
+Procedure ExportarATodosEmpleados(Var archivo: t_Archivo);
+Begin
+End;
+
+Procedure ExportarAFaltaDNIEmpleado(Var archivo: t_Archivo);
+Begin
+End;
+
 Procedure AbrirArchivoDeEmpleados();
 
 Var 
@@ -138,12 +154,14 @@ Begin
       WriteLn('1. Buscar empleados por nombre o apellido.');
       WriteLn('2. Listar todos los empleados.');
       WriteLn('3. Listar empleados mayores de 70 años.');
+      WriteLn;
       WriteLn('4. Agregar empleados al archivo.');
       WriteLn('5. Modificar edad de un empleado.');
+      WriteLn;
       WriteLn('6. Exportar a todos los empleados.');
       WriteLn('7. Exportar a los empleados que no tienen DNI.');
+      WriteLn;
       WriteLn('0. Volver al menú principal.');
-
 
       WriteLn;
       Write('> ');
@@ -153,10 +171,12 @@ Begin
         '1': BuscarEmpleado(archivo);
         '2': ListarEmpleados(archivo);
         '3': ListarMayoresDe70(archivo);
+
         '4': AgregarEmpleados(archivo);
         '5': ModificarEdad(archivo);
         '6': ExportarATodosEmpleados(archivo);
         '7': ExportarAFaltaDNIEmpleado(archivo);
+
         '0': salir := true;
         Else
           Begin
@@ -244,6 +264,7 @@ Begin
       WriteLn('Seleccione una opción:');
       WriteLn('1. Crear archivo de empleados.');
       WriteLn('2. Abrir archivo de empleados.');
+      WriteLn;
       WriteLn('0. Salir.');
 
       WriteLn;
