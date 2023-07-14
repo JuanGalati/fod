@@ -5,11 +5,14 @@ Program ejercicio3;
 Uses crt;
 
 Type 
+  str = string[25];
+
   t_Empleado = Record
     numero: integer;
-    nombre: string;
-    apellido: string;
-    dni: string;
+    nombre: str;
+    apellido: str;
+    dni: string[10];
+    edad: integer;
   End;
 
   t_Archivo = File Of t_Empleado;
@@ -17,7 +20,7 @@ Type
 Procedure ElegirArchivo(Var archivo: t_Archivo);
 
 Var 
-  NombreFisico: String;
+  NombreFisico: str;
 Begin
   clrScr;
   Write('Ingrese el nombre del archivo: ');
@@ -25,13 +28,6 @@ Begin
   Assign(archivo, NombreFisico);
 End;
 
-Procedure BuscarPor(Var archivo: t_Archivo);
-Begin
-  clrScr;
-  Reset(Archivo);
-
-  Close(Archivo);
-End;
 
 Procedure ImprimirEmpleado(empleado: t_Empleado);
 Begin
@@ -41,8 +37,38 @@ Begin
       WriteLn('', nombre, ' ', apellido);
       WriteLn('Número: ', numero);
       WriteLn('DNI: ', dni);
-      WriteLn;
+      WriteLn('Edad: ', edad)
     End;
+End;
+
+Procedure BuscarEmpleado(Var archivo: t_Archivo);
+
+Var 
+  empleado: t_Empleado;
+  query: str;
+Begin
+  clrScr;
+  Reset(Archivo);
+
+  Write('Ingrese el nombre o apellido a buscar: ');
+  ReadLn(query);
+
+  While (Not EOF(archivo)) Do
+    Begin
+      Read(archivo, empleado);
+
+      If (empleado.nombre = query) Or (empleado.apellido = query)
+        Then
+        Begin
+          ImprimirEmpleado(empleado);
+          WriteLn;
+        End;
+    End;
+
+  WriteLn('Presione ENTER para continuar.');
+  ReadLn;
+
+  Close(Archivo);
 End;
 
 Procedure ListarEmpleados(Var archivo: t_Archivo);
@@ -56,11 +82,11 @@ Begin
   WriteLn('Empleados: ');
   WriteLn;
 
-
   While (Not EOF(archivo)) Do
     Begin
       Read(archivo, empleado);
       ImprimirEmpleado(empleado);
+      WriteLn;
     End;
 
   WriteLn('Presione ENTER para continuar.');
@@ -69,9 +95,26 @@ Begin
 End;
 
 Procedure ListarMayoresDe70(Var archivo: t_Archivo);
+
+Var 
+  empleado: t_Empleado;
 Begin
   clrScr;
   Reset(Archivo);
+
+  While (Not EOF(archivo)) Do
+    Begin
+      Read(archivo, empleado);
+
+      If (empleado.edad > 70) Then
+        Begin
+          ImprimirEmpleado(empleado);
+          WriteLn;
+        End;
+    End;
+
+  WriteLn('Presione ENTER para continuar.');
+  ReadLn;
 
   Close(Archivo);
 End;
@@ -80,30 +123,41 @@ Procedure AbrirArchivoDeEmpleados();
 
 Var 
   opcion: Char;
+  salir: Boolean;
   archivo: t_Archivo;
 
 Begin
+  salir := false;
   ElegirArchivo(archivo);
 
-  While (true) Do
+  While (Not salir) Do
     Begin
       clrScr;
 
       WriteLn('Seleccione una opción:');
-      WriteLn('1. Listar empleados con un nombre o apellido determinado');
-      WriteLn('2. Listar todos los empleados');
-      WriteLn('3. Listar empleados mayores de 70 años');
-      WriteLn('0. Volver al menú principal');
+      WriteLn('1. Buscar empleados por nombre o apellido.');
+      WriteLn('2. Listar todos los empleados.');
+      WriteLn('3. Listar empleados mayores de 70 años.');
+      WriteLn('4. Agregar empleados al archivo.');
+      WriteLn('5. Modificar edad de un empleado.');
+      WriteLn('6. Exportar a todos los empleados.');
+      WriteLn('7. Exportar a los empleados que no tienen DNI.');
+      WriteLn('0. Volver al menú principal.');
+
 
       WriteLn;
       Write('> ');
       Readln(opcion);
 
       Case opcion Of 
-        '1': BuscarPor(archivo);
+        '1': BuscarEmpleado(archivo);
         '2': ListarEmpleados(archivo);
         '3': ListarMayoresDe70(archivo);
-        '0': Break;
+        '4': AgregarEmpleados(archivo);
+        '5': ModificarEdad(archivo);
+        '6': ExportarATodosEmpleados(archivo);
+        '7': ExportarAFaltaDNIEmpleado(archivo);
+        '0': salir := true;
         Else
           Begin
             WriteLn;
@@ -132,8 +186,11 @@ Begin
       Write('Número: ');
       Readln(empleado.numero);
 
-      Write('Ingrese el DNI del empleado: ');
+      Write('DNI: ');
       Readln(empleado.dni);
+
+      Write('Edad: ');
+      Readln(empleado.edad);
     End;
 End;
 
@@ -176,12 +233,12 @@ End;
 
 Var 
   opcion: Char;
-  exit: Boolean;
+  salir: Boolean;
 Begin
   clrScr;
-  exit := false;
+  salir := false;
 
-  While (Not exit) Do
+  While (Not salir) Do
     Begin
       clrScr;
       WriteLn('Seleccione una opción:');
@@ -196,7 +253,7 @@ Begin
       Case opcion Of 
         '1': CrearArchivoDeEmpleados();
         '2': AbrirArchivoDeEmpleados();
-        '0': exit := true;
+        '0': salir := true;
         Else
           Begin
             WriteLn;
