@@ -1,8 +1,12 @@
 
-Program ejercicio3;
+Program ejercicio4;
 {$codepage utf-8}
 
 Uses crt;
+
+Const 
+  NULO = '###';
+  FIN = 'fin';
 
 Type 
   str = string[25];
@@ -17,6 +21,20 @@ Type
 
   t_Archivo = File Of t_Empleado;
 
+Procedure PresioneEnter();
+Begin
+  WriteLn;
+  WriteLn('Presione ENTER para continuar.');
+  ReadLn;
+End;
+
+Procedure Leer(Var archivo: t_Archivo; Var empleado: t_Empleado);
+Begin
+  If (Not EOF(archivo))
+    Then read(archivo, empleado)
+  Else empleado.apellido := NULO
+End;
+
 Procedure ElegirArchivo(Var archivo: t_Archivo);
 
 Var 
@@ -28,6 +46,16 @@ Begin
   Assign(archivo, NombreFisico);
 End;
 
+Procedure ElegirArchivo(Var archivo: text);
+
+Var 
+  NombreFisico: str;
+Begin
+  clrScr;
+  Write('Ingrese el nombre del archivo: ');
+  Readln(NombreFisico);
+  Assign(archivo, NombreFisico);
+End;
 
 Procedure ImprimirEmpleado(empleado: t_Empleado);
 Begin
@@ -39,6 +67,71 @@ Begin
       WriteLn('DNI: ', dni);
       WriteLn('Edad: ', edad)
     End;
+End;
+
+Procedure CargarEmpleado(Var empleado: t_Empleado);
+
+Begin
+  ClrScr;
+  WriteLn('Ingrese los datos del empleado: ');
+  WriteLn;
+
+  Write('Apellido: ');
+  Readln(empleado.apellido);
+
+  If (empleado.apellido <> FIN) Then
+    Begin
+      Write('Nombre: ');
+      Readln(empleado.nombre);
+
+      Write('DNI: ');
+      Readln(empleado.dni);
+
+      Write('Edad: ');
+      Readln(empleado.edad);
+    End;
+End;
+
+Procedure CrearArchivoDeEmpleados();
+
+Var 
+  archivo: t_Archivo;
+  empleado: t_Empleado;
+  numero: Integer;
+Begin
+  clrScr;
+
+  ElegirArchivo(archivo);
+  Rewrite(archivo);
+
+  numero := fileSize(archivo);
+
+  Repeat
+    CargarEmpleado(empleado);
+
+    If (empleado.apellido <> FIN)
+      Then
+      Begin
+        empleado.numero := numero;
+        Write(archivo, empleado);
+        numero := numero + 1;
+
+        WriteLn('Empleado cargado con éxito.');
+        WriteLn;
+        WriteLn('Presione ENTER para agregar un nuevo empleado.');
+        Read;
+      End;
+
+  Until (empleado.apellido = FIN);
+
+  ClrScr;
+
+  WriteLn;
+  WriteLn('Archivo de Empleados creado correctamente.');
+
+  PresioneEnter;
+
+  Close(Archivo);
 End;
 
 Procedure BuscarEmpleado(Var archivo: t_Archivo);
@@ -65,8 +158,7 @@ Begin
         End;
     End;
 
-  WriteLn('Presione ENTER para continuar.');
-  ReadLn;
+  PresioneEnter;
 
   Close(Archivo);
 End;
@@ -89,8 +181,8 @@ Begin
       WriteLn;
     End;
 
-  WriteLn('Presione ENTER para continuar.');
-  ReadLn;
+  PresioneEnter;
+
   Close(Archivo);
 End;
 
@@ -113,26 +205,170 @@ Begin
         End;
     End;
 
-  WriteLn('Presione ENTER para continuar.');
-  ReadLn;
+  PresioneEnter;
 
   Close(Archivo);
 End;
 
 Procedure AgregarEmpleados(Var archivo: t_Archivo);
+
+Var 
+  empleado: t_Empleado;
+  numero: Integer;
 Begin
+  Reset(Archivo);
+
+  numero := fileSize(archivo);
+
+  Seek(archivo, fileSize(Archivo));
+
+  Repeat
+    CargarEmpleado(empleado);
+
+    If (empleado.apellido <> FIN) Then
+      Begin
+        empleado.numero := numero;
+        Write(archivo, empleado);
+        numero := numero + 1;
+
+        WriteLn('Empleado agregado con éxito.');
+        WriteLn;
+        WriteLn('Presione ENTER para agregar un nuevo empleado.');
+        ReadLn;
+      End;
+
+  Until (empleado.apellido = FIN);
+
+  PresioneEnter;
+
+  Close(Archivo);
 End;
 
 Procedure ModificarEdad(Var archivo: t_Archivo);
+
+Var 
+  empleado: t_Empleado;
+  query: str;
 Begin
+
+  Reset(archivo);
+
+  WriteLn('Ingrese el nombre o apellido del empleado a modificar: ');
+  Write('> ');
+  ReadLn(query);
+
+  Repeat
+    Leer(archivo, empleado);
+  Until (
+        (empleado.nombre = query)
+        Or (empleado.apellido = query)
+        Or (empleado.apellido = NULO)
+        );
+
+  If (Not (empleado.apellido = NULO)) Then
+    Begin
+      WriteLn('Ingrese la edad del empleado:');
+      Write('> ');
+      ReadLn(empleado.edad);
+
+      Seek(archivo, FilePos(archivo) - 1);
+      Write(archivo, empleado);
+
+      WriteLn('Edad del empleado modificada con éxito.');
+    End
+  Else
+    WriteLn('Empleado no encontrado.');
+
+  PresioneEnter;
+
+  Close(archivo);
 End;
 
+
 Procedure ExportarATodosEmpleados(Var archivo: t_Archivo);
+
+Var 
+  archivoTexto: Text;
+  empleado: t_empleado;
 Begin
+  ClrScr;
+
+  Reset(archivo);
+
+  Assign(archivoTexto, 'todosEmpleados.txt');
+  Rewrite(archivoTexto);
+
+  While (Not EOF(archivo)) Do
+    Begin
+      read(archivo, empleado);
+
+      With empleado Do
+        Begin
+          WriteLn(archivoTexto, numero, ' ', edad, ' ', dni);
+          WriteLn(archivoTexto, nombre);
+          WriteLn(archivoTexto, apellido);
+        End;
+    End;
+
+  Close(archivo);
+  Close(archivoTexto);
+End;
+
+Procedure ImprimirDesdeTodosEmpleados();
+
+Var 
+  archivoTexto: Text;
+  empleado: t_Empleado;
+Begin
+  ClrScr;
+
+  Assign(archivoTexto, 'todosEmpleados.txt');
+  Reset(archivoTexto);
+
+  While (Not EOF(archivoTexto)) Do
+    Begin
+      With empleado Do
+        Begin
+          readLn(archivoTexto, numero, edad, dni);
+          readLn(archivoTexto, nombre);
+          readLn(archivoTexto, apellido);
+        End;
+      ImprimirEmpleado(empleado);
+      WriteLn;
+    End;
+
+  PresioneEnter;
+
+  Close(archivoTexto);
+
 End;
 
 Procedure ExportarAFaltaDNIEmpleado(Var archivo: t_Archivo);
+
+Var 
+  empleado: t_Empleado;
+  archivoTexto: Text;
 Begin
+  Reset(Archivo);
+
+  Assign(archivoTexto, 'sinDNI.txt');
+  Rewrite(archivoTexto);
+
+  Repeat
+    Leer(archivo, empleado);
+
+    If (empleado.DNI = '00') Then
+      With empleado Do
+        Begin
+          WriteLn(archivoTexto, numero, ' ', edad, ' ', dni);
+          WriteLn(archivoTexto, nombre);
+          WriteLn(archivoTexto, apellido);
+        End;
+  Until (empleado.apellido = NULO);
+
+  Close(archivoTexto);
+  Close(archivo);
+
 End;
 
 Procedure AbrirArchivoDeEmpleados();
@@ -158,8 +394,9 @@ Begin
       WriteLn('4. Agregar empleados al archivo.');
       WriteLn('5. Modificar edad de un empleado.');
       WriteLn;
-      WriteLn('6. Exportar a todos los empleados.');
-      WriteLn('7. Exportar a los empleados que no tienen DNI.');
+      WriteLn('6. Exportar a todosEmpleados.txt.');
+      WriteLn('7. Exportar a empleadosSinDNI.txt.');
+      WriteLn('8. Imprimir desde todosEmpleados.txt.');
       WriteLn;
       WriteLn('0. Volver al menú principal.');
 
@@ -174,88 +411,29 @@ Begin
 
         '4': AgregarEmpleados(archivo);
         '5': ModificarEdad(archivo);
+
         '6': ExportarATodosEmpleados(archivo);
         '7': ExportarAFaltaDNIEmpleado(archivo);
+        '8': ImprimirDesdeTodosEmpleados();
 
         '0': salir := true;
         Else
           Begin
             WriteLn;
-            WriteLn('Opción inválida. Presione ENTER para continuar.');
-            readln;
+            WriteLn('Opción inválida.');
+
+            PresioneEnter;
           End;
       End;
     End;
 End;
 
-Procedure CargarEmpleado(Var empleado: t_Empleado);
 
-Begin
-  ClrScr;
-  WriteLn('Ingrese los datos del empleado: ');
-  WriteLn;
-
-  Write('Apellido: ');
-  Readln(empleado.apellido);
-
-  If (empleado.apellido <> 'fin') Then
-    Begin
-      Write('Nombre: ');
-      Readln(empleado.nombre);
-
-      Write('Número: ');
-      Readln(empleado.numero);
-
-      Write('DNI: ');
-      Readln(empleado.dni);
-
-      Write('Edad: ');
-      Readln(empleado.edad);
-    End;
-End;
-
-
-Procedure CrearArchivoDeEmpleados();
-
-Var 
-  archivo: t_Archivo;
-  empleado: t_Empleado;
-Begin
-  clrScr;
-
-  ElegirArchivo(archivo);
-  Rewrite(archivo);
-
-  Repeat
-    CargarEmpleado(empleado);
-
-    If (empleado.apellido <> 'fin')
-      Then
-      Begin
-        WriteLn;
-        Write(archivo, empleado);
-        WriteLn('Empleado cargado con éxito.');
-
-        Write('Presione ENTER para agregar un nuevo empleado.');
-        ReadLn;
-      End;
-
-  Until (empleado.apellido = 'fin');
-
-  ClrScr;
-
-  WriteLn;
-  WriteLn('Archivo de Empleados creado correctamente.');
-  WriteLn('Presione ENTER para continuar.');
-  Readln;
-  Close(Archivo);
-End;
 
 Var 
   opcion: Char;
   salir: Boolean;
 Begin
-  clrScr;
   salir := false;
 
   While (Not salir) Do
@@ -278,8 +456,9 @@ Begin
         Else
           Begin
             WriteLn;
-            WriteLn('Opción inválida. Presione ENTER para continuar.');
-            readln;
+            WriteLn('Opción inválida.');
+
+            PresioneEnter;
           End;
       End;
     End;
