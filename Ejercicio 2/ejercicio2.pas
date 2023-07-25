@@ -1,4 +1,14 @@
 
+{
+  Realizar un algoritmo que, utilizando el archivo de números enteros no 
+  ordenados creados en el ejercicio 1:
+  [X] Informe por pantalla cantidad de números menores a 1500 
+      y el promedio de los números ingresados. 
+  [X] El nombre del archivo a procesar debe ser proporcionado por el usuario
+      una única vez. 
+  [X] Además, el algoritmo deberá listar el contenido del archivo en pantalla.  
+}
+
 Program ejercicio2;
 
 Type 
@@ -21,14 +31,11 @@ Begin
   Close(NombreLogico);
 End;
 
-
-
 Procedure Promedio(Var NombreLogico: t_archivo);
 
 Var 
   numero: Integer;
   suma: Integer;
-  cantidad: Integer;
 Begin
   Reset(NombreLogico);
   suma := 0;
