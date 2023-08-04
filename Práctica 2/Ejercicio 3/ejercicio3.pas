@@ -84,7 +84,7 @@ Begin
     Begin
       WriteLn(archivo, Codigo, ' ', Stock, ' ', StockMinimo, ' ',
               Precio, ' ', nombre);
-      WriteLn(archivo, descripcion)
+      WriteLn(archivo, descripcion);
     End;
 End;
 
@@ -175,12 +175,11 @@ Begin
   Min.Codigo := MAXINT;
 
   For i := 1 To C_SUCURSALES Do
-    If (datos[i].Codigo <> MAXINT) Then
-      If (datos[i].Codigo < Min.Codigo) Then
-        Begin
-          min := datos[i];
-          minIndex := i;
-        End;
+    If (datos[i].Codigo < Min.Codigo) Then
+      Begin
+        min := datos[i];
+        minIndex := i;
+      End;
 
   If (minIndex <> 0) Then
     Leer(archivos[minIndex], datos[minIndex]);
@@ -248,11 +247,19 @@ Begin
   Leer(Archivo, Producto);
   While (Producto.Codigo <> MAXINT) Do
     Begin
+      Imprimir(Producto);
+      WriteLn(Producto.Stock < Producto.stockMinimo);
       If (Producto.Stock < Producto.stockMinimo) Then
-        Escribir(Informe, Producto);
+        Begin
+          WriteLn('Test');
+          Escribir(informe, Producto);
+        End;
 
       Leer(Archivo, Producto);
     End;
+
+  Close(archivo);
+  Close(informe);
 End;
 
 Var 
@@ -269,8 +276,8 @@ Begin
 
   Assign(maestro, ARCHIVO_PRODUCTOS);
 
-  Actualizar(maestro, detalles);
-  Imprimir(maestro);
+  (* Actualizar(maestro, detalles); *)
+  (* Imprimir(maestro); *)
   Exportar(maestro);
 
   PresioneEnter;
